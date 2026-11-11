@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Sketch</title>
+    <title>Grid mosaic tool_experiment</title>
 
     <link rel="stylesheet" type="text/css" href="style.css">
 
@@ -13,6 +13,27 @@
   </head>
 
   <body>
+<!-- 
+    <input type="file" id="fileInput" accept="image/*"> 
+    <canvas id="canvas" width="600" height="600"></canvas>
+    --- <input type="file"> 是上传按钮，id="fileInput" 是给它起的名字，JS 靠这个名字找到它，<canvas> 也一样 -->
+
+ <div class="controls">
+   <label>Cell size <input type="range" id="size" min="5" max="100" value="20" step="1"></label>
+   <label>Brightness <input type="range" id="brightness" min="-100" max="100" value="0"></label>
+   <label>Contrast <input type="range" id="contrast" min="0" max="3" value="1" step="0.1"></label>
+   <label>Saturation <input type="range" id="saturation" min="0" max="3" value="1" step="0.1"></label>
+
+   <label>Mode
+    <select id="mode">
+      <option value="colour">Colour</option>
+      <option value="colourLines">Colour + Lines</option>
+      <option value="lines">Lines only</option>
+    </select>
+  </label>
+
+ </div>
+
     <script src="sketch.js"></script>
   </body>
 </html>
