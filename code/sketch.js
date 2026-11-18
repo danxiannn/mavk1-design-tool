@@ -11,7 +11,8 @@ const labyrinthDrawings = [
   drawLabyrinthTwo,
   drawLabyrinthThree,
   drawLabyrinthFour,
-  drawLabyrinthFive
+  drawLabyrinthFive,
+  drawLabyrinthSix
 ];
 
 const diagonalDrawings = [
@@ -34,6 +35,7 @@ function setup() {
     sliders[i].input(redraw);
   }
   select("#trame").changed(redraw); // 切换 trame 时重画
+  select("#saveButton").mousePressed(savePNG); // 点按钮就保存
 }
 
 // 选了文件以后运行
@@ -110,14 +112,40 @@ function draw() {
 
 }
 
-function drawLabyrinth(x, y, size, cellColor, drawingIndex, drawings) {
-  let luminance = (cellColor[0] * 0.299 + cellColor[1] * 0.587 + cellColor[2] * 0.114);  //算这一格有多亮
-  let lineColor = luminance > 127 ? 0 : 255;  //决定线是黑还是白 -- ? : 是 if ... else 的简写 -- “如果亮度大于 127（偏亮），线就用 0（黑）；否则用 255（白）。”
+// function drawLabyrinth(x, y, size, cellColor, drawingIndex, drawings) {
+//   let luminance = (cellColor[0] * 0.299 + cellColor[1] * 0.587 + cellColor[2] * 0.114);  //算这一格有多亮
+//   // let lineColor = luminance > 127 ? 0 : 255;  //决定线是黑还是白 -- ? : 是 if ... else 的简写 -- “如果亮度大于 127（偏亮），线就用 0（黑）；否则用 255（白）。”
 
-  noFill();          //形状里面不填充颜色，只画轮廓线
-  stroke(lineColor,120); //线的颜色，半透明
-  strokeWeight(max(0.3, size * 0.03));  //线的粗细，最小为 0.6--线宽是格子大小的 6%，格子大线就粗，格子小线就细。max(0.6, ...) 是“取比较大的那个”，保证线宽最少是 0.6，格子很小时线也不会细到消失。
+//   if (luminance > 127) {
+//     // 亮的格子：往黑色走一半
+//     stroke(cellColor[0] * 0.5, cellColor[1] * 0.5, cellColor[2] * 0.5);
+//   } else {
+//     // 暗的格子：往白色走一半
+//     stroke(
+//       cellColor[0] + (255 - cellColor[0]) * 0.5,
+//       cellColor[1] + (255 - cellColor[1]) * 0.5,
+//       cellColor[2] + (255 - cellColor[2]) * 0.5
+//     );
+//   }
+  // noFill();          //形状里面不填充颜色，只画轮廓线
+  // // stroke(lineColor,120); //线的颜色，半透明
+  // strokeWeight(max(0.3, size * 0.03));  //线的粗细，最小为 0.6--线宽是格子大小的 6%，格子大线就粗，格子小线就细。max(0.6, ...) 是“取比较大的那个”，保证线宽最少是 0.6，格子很小时线也不会细到消失。
+  // strokeJoin(ROUND); //圆角
+
+  // blendMode(MULTIPLY); // 正片叠底：线和底色相乘
+  // drawings[drawingIndex % drawings.length](x, y, size);
+  // blendMode(BLEND);    // 画完换回正常模式
+// }
+
+function drawLabyrinth(x, y, size, cellColor, drawingIndex, drawings) {
+  stroke(0, 80, 170);  // 油墨色：riso 蓝，可以换成别的颜色
+  noFill();
+  strokeWeight(max(0.3, size * 0.03));
+  strokeJoin(ROUND);
+
+  blendMode(MULTIPLY); // 正片叠底
   drawings[drawingIndex % drawings.length](x, y, size);
+  blendMode(BLEND);    // 换回正常
 }
 
 function drawLabyrinthOne(x, y, size) {
@@ -181,6 +209,16 @@ function drawLabyrinthFive(x, y, size) {
   ]);
 }
 
+function drawLabyrinthSix(x, y, size) {
+  //groupline 1
+  drawLabyrinthPath(x, y, size, [
+    [0.5, 0.5], [0.5, 0.4], [0.6, 0.4], [0.6, 0.6], [0.4, 0.6], 
+    [0.4, 0.3], [0.7, 0.3], [0.7, 0.7],[0.3, 0.7], [0.3, 0.2],
+    [0.8, 0.2], [0.8, 0.8], [0.2, 0.8], [0.2, 0.1], [0.9, 0.1],
+    [0.9, 0.9], [0.1, 0.9], [0.1, 0], [1,0], [1,1], [0,1], [0,0],
+    []
+  ]);
+
 function drawLabyrinthPath(x, y, size, points) {
   beginShape();
   for (let point of points) {
@@ -192,12 +230,16 @@ function drawLabyrinthPath(x, y, size, points) {
 
 // 斜线 /
 function drawSlash(x, y, size) {
-  drawLabyrinthPath(x, y, size, [[0, 1], [1, 0]]);
+    drawLabyrinthPath(x, y, size, [[0, 0.5], [0.5, 0]]); // 左上角那条短线
+  drawLabyrinthPath(x, y, size, [[0, 1], [1, 0]]);     // 中间对角线
+  drawLabyrinthPath(x, y, size, [[0.5, 1], [1, 0.5]]); // 右下角那条短线
 }
 
 // 斜线 \
 function drawBackslash(x, y, size) {
-  drawLabyrinthPath(x, y, size, [[0, 0], [1, 1]]);
+  drawLabyrinthPath(x, y, size, [[0.5, 0], [1, 0.5]]); // 右上角那条短线
+  drawLabyrinthPath(x, y, size, [[0, 0], [1, 1]]);     // 中间对角线
+  drawLabyrinthPath(x, y, size, [[0, 0.5], [0.5, 1]]); // 左下角那条短线
 }
 
  // 调整一个颜色：c 是 [r, g, b, a]
@@ -229,6 +271,10 @@ function drawBackslash(x, y, size) {
 }
 
 
+// 把画布保存成 PNG 图片
+function savePNG() {
+  saveCanvas("grid-mosaic", "png");
+}
 
 // 2-slider(intensity) - local shuffling(swap with other tiles(meibouring?))
 // 3-*hue separation/histogram adjustments
