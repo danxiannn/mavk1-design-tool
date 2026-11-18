@@ -4,10 +4,40 @@ html, body {
   padding: 20px;
 }
 
+body {
+  display: flex;
+
+
+}
+
 canvas {
   display: block;
   margin-top: 12px;
   background: white;
+}
+
+
+.controls {
+  padding: 0.5rem;
+  display:flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+
+  & .input-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  & button, select {
+    padding: 0.5rem;
+  }
+
+  & input[type="file"]::file-selector-button{
+    padding: 0.5rem;
+  }
 }
 
 .controls label {

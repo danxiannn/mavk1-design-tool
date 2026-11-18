@@ -5,7 +5,9 @@ let cellSize = 20;   //size of each cell
 let cols, rows;      //number of columns and rows
 let labyrinthChoices = [];
 let previousGrid = "";
-
+let patternColor;
+const fileInput = document.getElementById("fileInput");
+const colorInput = document.getElementById("patternColor");
 const labyrinthDrawings = [
   drawLabyrinthOne,
   drawLabyrinthTwo,
@@ -22,11 +24,26 @@ const diagonalDrawings = [
   drawBackslash
 ];
 
+const circlesDrawings = [
+  drawCircle
+]
+
+const squaresDrawings = [
+  drawSquare
+]
 
 function setup() {
-
+  patternColor = colorInput.value;
   createCanvas(800, 800);
-  createFileInput(handleFile); // 上传按钮
+
+  fileInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      handleFile(file);
+    }
+  });
+  colorInput.addEventListener("input", handleColorChange);
+
   noLoop();                    // 不自动循环，需要时才重画
   
   // 找到页面上所有滑杆，让它们一动就重画
@@ -40,9 +57,19 @@ function setup() {
 
 // 选了文件以后运行
 function handleFile(file) {
-  if (file.type === "image") {
-    img = loadImage(file.data, imageReady);
+  if (file.type.startsWith("image/")) {
+    const objectUrl = URL.createObjectURL(file);
+    loadImage(objectUrl, (loadedImage) => {
+      img = loadedImage;
+      URL.revokeObjectURL(objectUrl);
+      imageReady();
+    });
   }
+}
+
+function handleColorChange(event) {
+  patternColor = event.target.value;
+  redraw();
 }
 
 // 图片加载好以后运行：按比例调整画布大小
@@ -86,6 +113,10 @@ function draw() {
     drawings = labyrinthDrawings;
   } else if (trame === "diagonal") {
     drawings = diagonalDrawings;
+  } else if (trame === "circles") {
+    drawings = circlesDrawings;
+  } else if (trame === "squares") {
+    drawings = squaresDrawings;
   }
 
   noStroke();
@@ -137,8 +168,21 @@ function draw() {
   // blendMode(BLEND);    // 画完换回正常模式
 // }
 
+function drawCircle(x, y, size) {
+  let radius = size * 0.4; // 圆的半径是格子大小的 40%
+  ellipse(x + size / 2, y + size / 2, radius * 2, radius * 2); // 在格子中心画圆
+
+}
+function drawSquare(x, y, size) {
+  let squareSize = size * 0.6; // 正方形的边长是格子大小的 60%
+  rect(x + (size - squareSize) / 2, y + (size - squareSize) / 2, squareSize, squareSize); // 在格子中心画正方形
+
+}
+
+
 function drawLabyrinth(x, y, size, cellColor, drawingIndex, drawings) {
-  stroke(0, 80, 170);  // 油墨色：riso 蓝，可以换成别的颜色
+  // stroke(0, 80, 170);  // 油墨色：riso 蓝，可以换成别的颜色
+  stroke(patternColor);  // 用用户选的颜色
   noFill();
   strokeWeight(max(0.3, size * 0.03));
   strokeJoin(ROUND);
@@ -209,6 +253,7 @@ function drawLabyrinthFive(x, y, size) {
   ]);
 }
 
+
 function drawLabyrinthSix(x, y, size) {
   //groupline 1
   drawLabyrinthPath(x, y, size, [
@@ -218,7 +263,7 @@ function drawLabyrinthSix(x, y, size) {
     [0.9, 0.9], [0.1, 0.9], [0.1, 0], [1,0], [1,1], [0,1], [0,0],
     []
   ]);
-
+}
 function drawLabyrinthPath(x, y, size, points) {
   beginShape();
   for (let point of points) {

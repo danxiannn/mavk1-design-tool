@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="style.css">
 
     <script src="libraries/p5.min.js"></script>
-    <script src="libraries/p5.sound.min.js"></script>
+
   </head>
 
   <body>
@@ -19,17 +19,44 @@
     --- <input type="file"> 是上传按钮，id="fileInput" 是给它起的名字，JS 靠这个名字找到它，<canvas> 也一样 -->
 
  <div class="controls">
-   <label>Cell size <input type="range" id="size" min="5" max="100" value="20" step="1"></label>
-   <label>Brightness <input type="range" id="brightness" min="-100" max="100" value="0"></label>
-   <label>Contrast <input type="range" id="contrast" min="0" max="3" value="1" step="0.1"></label>
-   <label>Saturation <input type="range" id="saturation" min="0" max="3" value="1" step="0.1"></label>
-   <label>Trame <select id="trame">
-     <option value="none">None</option>
-     <option value="diagonal">Diagonal</option>
-     <option value="labyrinth">Labyrinth</option>
-   </select></label>
-   
-  <button id="saveButton">Save PNG</button>
+  <div class="input-wrapper">
+    <label>Cell size </label>
+    <input type="range" id="size" min="5" max="100" value="20" step="1">
+  </div>
+  <div class="input-wrapper">
+    <label>Brightness </label>
+    <input type="range" id="brightness" min="-100" max="100" value="0">
+  </div>
+  <div class="input-wrapper">
+    <label>Contrast </label>
+    <input type="range" id="contrast" min="0" max="3" value="1" step="0.1">
+  </div>
+  <div class="input-wrapper">
+    <label>Saturation </label>
+    <input type="range" id="saturation" min="0" max="3" value="1" step="0.1">
+  </div>
+  <div class="input-wrapper">
+    <label>Pattern Color </label>
+    <input type="color" id="patternColor" value="#000000">
+  </div>
+  
+  <div class="input-wrapper">
+    <label>Trame </label>
+    <select id="trame">
+      <option value="none">None</option>
+      <option value="diagonal">Diagonal</option>
+      <option value="labyrinth">Labyrinth</option>
+      <option value="circles">Circles</option>
+      <option value="squares">Squares</option>
+    </select>
+  </div>
+  <div class="input-wrapper">
+    <label>File Input </label>
+    <input type="file" id="fileInput" accept="image/*">
+  </div>
+   <button id="saveButton">Save PNG</button>
+  </div>
+
 
    <!-- <label>Mode
     <select id="mode">
@@ -39,7 +66,6 @@
     </select>
   </label> -->
 
- </div>
 
     <script src="sketch.js"></script>
   </body>
