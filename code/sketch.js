@@ -5,12 +5,22 @@ let cellSize = 20;   //size of each cell
 let cols, rows;      //number of columns and rows
 let labyrinthChoices = [];
 let previousGrid = "";
+
 const labyrinthDrawings = [
   drawLabyrinthOne,
   drawLabyrinthTwo,
   drawLabyrinthThree,
-  drawLabyrinthFour
+  drawLabyrinthFour,
+  drawLabyrinthFive
 ];
+
+const diagonalDrawings = [
+  drawSlash,
+  drawSlash,
+  drawSlash,
+  drawBackslash
+];
+
 
 function setup() {
 
@@ -23,7 +33,7 @@ function setup() {
   for (let i = 0; i < sliders.length; i++) {
     sliders[i].input(redraw);
   }
-
+  select("#trame").changed(redraw); // 切换 trame 时重画
 }
 
 // 选了文件以后运行
@@ -66,60 +76,108 @@ function draw() {
   let small = img.get();
   small.resize(cols, rows);
 
+  //看用户选了哪种 trame
+  let trame = select("#trame").value();
+  let drawings = null; // 要用的图案组，null 表示不画
+
+  if (trame === "labyrinth") {
+    drawings = labyrinthDrawings;
+  } else if (trame === "diagonal") {
+    drawings = diagonalDrawings;
+  }
+
   noStroke();
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       let cellColor = small.get(col, row);
       let adjustedColor = adjustColour(cellColor);
+      noStroke();
       fill(adjustedColor);
       rect(col * cellSize, row * cellSize, cellSize, cellSize);
-      drawLabyrinth(
-        col * cellSize,
-        row * cellSize,
-        cellSize,
-        adjustedColor,
-        labyrinthChoices[row][col]
-      );
+      // 选了图案才画 trame
+      if (drawings !== null) {
+        drawLabyrinth(
+          col * cellSize,
+          row * cellSize,
+          cellSize,
+          adjustedColor,
+          labyrinthChoices[row][col],
+          drawings
+        );
+      }
     }
   }
 
 }
 
-function drawLabyrinth(x, y, size, cellColor, drawingIndex) {
-  let luminance = (cellColor[0] * 0.299 + cellColor[1] * 0.587 + cellColor[2] * 0.114);
-  let lineColor = luminance > 127 ? 0 : 255;
+function drawLabyrinth(x, y, size, cellColor, drawingIndex, drawings) {
+  let luminance = (cellColor[0] * 0.299 + cellColor[1] * 0.587 + cellColor[2] * 0.114);  //算这一格有多亮
+  let lineColor = luminance > 127 ? 0 : 255;  //决定线是黑还是白 -- ? : 是 if ... else 的简写 -- “如果亮度大于 127（偏亮），线就用 0（黑）；否则用 255（白）。”
 
-  noFill();
-  stroke(lineColor);
-  strokeWeight(max(0.6, size * 0.06));
-  labyrinthDrawings[drawingIndex](x, y, size);
+  noFill();          //形状里面不填充颜色，只画轮廓线
+  stroke(lineColor,120); //线的颜色，半透明
+  strokeWeight(max(0.3, size * 0.03));  //线的粗细，最小为 0.6--线宽是格子大小的 6%，格子大线就粗，格子小线就细。max(0.6, ...) 是“取比较大的那个”，保证线宽最少是 0.6，格子很小时线也不会细到消失。
+  drawings[drawingIndex % drawings.length](x, y, size);
 }
 
 function drawLabyrinthOne(x, y, size) {
   drawLabyrinthPath(x, y, size, [
-    [0.15, 0.15], [0.85, 0.15], [0.85, 0.38], [0.25, 0.38],
-    [0.25, 0.62], [0.75, 0.62], [0.75, 0.85], [0.15, 0.85]
+    [0, 0.1], [0.9, 0.1], [0.9, 0.3], [0.8, 0.3],
+    [0.8, 0.2], [0.7, 0.2], [0.7, 0.3], [0.6, 0.3], 
+    [0.6, 0.2], [0.5, 0.2], [0.5, 0.3], [0.4, 0.3],
+    [0.4, 0.2], [0.3, 0.2], [0.3, 0.3], [0.2, 0.3], 
+    [0.2, 0.2], [0.1, 0.2], [0.1, 0.9], [0.2, 0.9], 
+    [0.2, 0.4], [0.3, 0.4], [0.3, 0.7], [0.4, 0.7], 
+    [0.4, 0.4], [0.5, 0.4], [0.5, 0.7], 
+    [0.6, 0.7], [0.6, 0.4], [0.7, 0.4], [0.7, 0.7],
+    [0.8, 0.7], [0.8, 0.4], [0.9, 0.4], [0.9, 0.8],
+    [0.3, 0.8], [0.3, 0.9], [1, 0.9]
   ]);
 }
 
 function drawLabyrinthTwo(x, y, size) {
   drawLabyrinthPath(x, y, size, [
-    [0.15, 0.85], [0.15, 0.15], [0.62, 0.15], [0.62, 0.42],
-    [0.38, 0.42], [0.38, 0.65], [0.85, 0.65], [0.85, 0.85]
+    [1, 0.1], [0.9, 0.1], [0.9, 0.9], [0.8, 0.9],[0.8,0.1],
+    [0.1, 0.1], [0.1, 0.2], [0.7, 0.2], [0.7, 0.9],[0.6, 0.9],
+    [0.6, 0.3], [0.5, 0.3], [0.5, 0.9], [0.2, 0.9],[0.2, 0.8],
+    [0.4, 0.8], [0.4, 0.7], [0.2, 0.7], [0.2, 0.6],[0.4, 0.6],
+    [0.4, 0.5], [0.2, 0.5], [0.2, 0.4], [0.4, 0.4],[0.4, 0.3],
+    [0.1, 0.3], [0.1, 1]
   ]);
 }
 
 function drawLabyrinthThree(x, y, size) {
   drawLabyrinthPath(x, y, size, [
-    [0.15, 0.15], [0.4, 0.15], [0.4, 0.4], [0.85, 0.4],
-    [0.85, 0.15], [0.65, 0.15], [0.65, 0.85], [0.15, 0.85]
+    [0, 0.9], [0.9, 0.9], [0.9, 0.1], [0.1, 0.1],
+    [0.1, 0.8], [0.8, 0.8], [0.8, 0.2], [0.2, 0.2],
+    [0.2, 0.7], [0.7, 0.7], [0.7, 0.3], [0.3, 0.3],
+    [0.3, 0.6], [0.6, 0.6], [0.6, 0.4], [0.4, 0.4],
+    [0.4, 0.5], [0.5, 0.5]
   ]);
 }
 
 function drawLabyrinthFour(x, y, size) {
+  //groupline 1
   drawLabyrinthPath(x, y, size, [
-    [0.5, 0.15], [0.5, 0.38], [0.15, 0.38], [0.15, 0.62],
-    [0.85, 0.62], [0.85, 0.85], [0.38, 0.85], [0.38, 0.15]
+    [0, 0.1], [0.8, 0.1], [0.8, 0.7], [0.4, 0.7], [0.4, 0.5], 
+    [0.6, 0.5], [0.6, 0.3], [0.2, 0.3],[0.2, 0.9], [1, 0.9]
+  ]);
+    //groupline 2
+  drawLabyrinthPath(x, y, size, [
+    [0.9, 0], [0.9, 0.8], [0.3, 0.8], [0.3, 0.4], [0.5, 0.4],
+    [0.5, 0.6], [0.7, 0.6], [0.7, 0.2], [0.1, 0.2], [0.1,1]
+  ]);
+}
+
+function drawLabyrinthFive(x, y, size) {
+  drawLabyrinthPath(x, y, size, [
+    [0.1, 0], [0.1, 0.6], [0.2, 0.6], [0.2, 0.1],
+    [0.9, 0.1], [0.9, 0.2], [0.3, 0.2], [0.3, 0.4],
+    [0.4, 0.4], [0.4, 0.3], [0.5, 0.3], [0.5, 0.4],
+    [0.6, 0.4], [0.6, 0.3], [0.7, 0.3], [0.7, 0.4],
+    [0.8, 0.4], [0.8, 0.3], [0.9, 0.3], [0.9, 0.5],
+    [0.3, 0.5], [0.3, 0.6], [0.9, 0.6], [0.9, 0.7],
+    [0.1, 0.7], [0.1, 0.8], [0.9, 0.8], [0.9, 0.9], [0, 0.9]
   ]);
 }
 
@@ -132,6 +190,15 @@ function drawLabyrinthPath(x, y, size, points) {
 }
 
 
+// 斜线 /
+function drawSlash(x, y, size) {
+  drawLabyrinthPath(x, y, size, [[0, 1], [1, 0]]);
+}
+
+// 斜线 \
+function drawBackslash(x, y, size) {
+  drawLabyrinthPath(x, y, size, [[0, 0], [1, 1]]);
+}
 
  // 调整一个颜色：c 是 [r, g, b, a]
  function adjustColour(c) {
